@@ -1,1 +1,0 @@
-docker build --load -t glb-creator .

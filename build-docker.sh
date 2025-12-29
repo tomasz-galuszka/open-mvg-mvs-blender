@@ -1,0 +1,1 @@
+docker build -f docker/Dockerfile --load -t glb-creator . --progress=plain

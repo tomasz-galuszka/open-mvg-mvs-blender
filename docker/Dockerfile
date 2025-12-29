@@ -1,8 +1,9 @@
-# ---------- 1. Base image ----------
-FROM ubuntu:22.04
+# ---------- 1. Base image: Blender headless ----------
+FROM lscr.io/linuxserver/blender:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
+WORKDIR /app
 
 # ---------- 2. Install dependencies ----------
 RUN apt-get update && apt-get install -y \
@@ -10,9 +11,7 @@ RUN apt-get update && apt-get install -y \
     cmake \
     build-essential \
     wget \
-    curl \
     unzip \
-    software-properties-common \
     python3 \
     python3-pip \
     libopencv-dev \
@@ -27,47 +26,51 @@ RUN apt-get update && apt-get install -y \
     libxrandr-dev \
     libxinerama-dev \
     libxcursor-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# ---------- 2a. Install Node.js & npm ----------
+# ---------- 3. Install Node.js & glTF-Transform ----------
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g @gltf-transform/cli
 
-# ---------- 3. Install Blender CLI ----------
-RUN wget https://download.blender.org/release/Blender3.6/blender-3.6.1-linux-x64.tar.xz \
-    && tar -xf blender-3.6.1-linux-x64.tar.xz -C /opt/ \
-    && rm blender-3.6.1-linux-x64.tar.xz
-
-ENV PATH="/opt/blender-3.6.1-linux-x64:$PATH"
-
-# Test Blender
-RUN blender --version
-
 # ---------- 4. Install OpenMVG ----------
-RUN git clone --recursive https://github.com/openMVG/openMVG.git /opt/openMVG \
+RUN git clone --branch master --recursive https://github.com/openMVG/openMVG.git /opt/openMVG \
     && mkdir /opt/openMVG/build \
     && cd /opt/openMVG/build \
-    && cmake .. -DCMAKE_BUILD_TYPE=Release \
-    && make -j$(nproc)
+    && cmake -DCMAKE_BUILD_TYPE=RELEASE ../src/ \
+    && make -j1
 
 ENV PATH="/opt/openMVG/build/Linux-x86_64-RELEASE/bin:$PATH"
 
+# Install CGAL and dependencies (headless OpenMVS)
+RUN apt-get update && apt-get install -y \
+    libcgal-dev \
+    libcgal-qt5-dev \
+    libeigen3-dev \
+    libboost-all-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install VCG and dependencies (headless OpenMVS)
+RUN git clone https://github.com/cdcseacave/VCG.git /opt/VCG
+ENV VCG_ROOT=/opt/VCG
+
 # ---------- 5. Install OpenMVS ----------
-RUN git clone --recursive https://github.com/cdcseacave/OpenMVS.git /opt/OpenMVS \
-    && mkdir /opt/OpenMVS/build \
-    && cd /opt/OpenMVS/build \
-    && cmake .. -DCMAKE_BUILD_TYPE=Release \
-    && make -j$(nproc)
+RUN git clone --branch master --recursive https://github.com/cdcseacave/OpenMVS.git /opt/OpenMVS \
+    && mkdir /opt/OpenMVS/make \
+    && cd /opt/OpenMVS/make \
+    && cmake -DCMAKE_BUILD_TYPE=RELEASE -DVCG_ROOT=$VCG_ROOT ../ \
+    && cmake --build . -- -j1 \
+    && cmake --install .
 
 ENV PATH="/opt/OpenMVS/build/bin:$PATH"
 
-# ---------- 7. Set working directory ----------
+# ---------- 7. Default working dir ----------
 WORKDIR /app
 
-# ---------- 8. Copy scripts ----------
-COPY ./app/* /app/
+# ---------- 6. Copy scripts ----------
+COPY app .
 
-# ---------- 9. Default entrypoint ----------
-# Można nadpisać komendą "docker run"
+# ---------- 8. Default entrypoint ----------
+# Można nadpisać komendą docker run
 ENTRYPOINT ["/bin/bash"]

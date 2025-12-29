@@ -56,7 +56,39 @@
 │ product.glb               │
 │ (ready for web & AR)      │
 └──────────────────────────┘
+```
 
+## OpenMVG
+```bash
+brew install opencv
+git clone --recursive https://github.com/openMVG/openMVG.git
+
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make -j$(sysctl -n hw.ncpu)
+# Po kompilacji binaria znajdziesz w openMVG_Build/Linux-x86_64-RELEASE/bin/ (nazwa katalogu może się różnić w zależności od wersji / OSX)
+
+# Zmienna w bin
+export PATH="$PATH:/path/to/openMVG_Build/Linux-x86_64-RELEASE/bin"
+```
+
+## OpenMVS
+```bash
+brew install cmake git boost glew eigen
+brew install opencv
+
+## Uwaga: OpenMVS wymaga Boost i OpenCV (ta sama wersja, co w OpenMVG)
+
+git clone --recursive https://github.com/cdcseacave/OpenMVS.git
+cd OpenMVS
+
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make -j$(sysctl -n hw.ncpu)
+
+# Po kompilacji binaria będą w bin/
+
+export PATH="$PATH:/path/to/OpenMVS/build/bin"
 ```
 
 ## Blender headles

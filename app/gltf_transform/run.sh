@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "▶ glTF optimization started\n"
+echo -e "▶ glTF optimization started\n"
 
 # Komenda gltf-transform optimize:
 # - input: output/product.glb            → plik GLB wygenerowany przez Blender
@@ -16,4 +16,4 @@ gltf-transform optimize \
   --texture-compress webp \
   --texture-size 2048
 
-echo "▶ glTF optimization finished!"
+echo -e "▶ glTF optimization finished!"

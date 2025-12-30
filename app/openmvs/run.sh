@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "▶ OpenMVS processing started ... \n"
+echo -e "▶ OpenMVS processing started ... \n"
 
 # DensifyPointCloud – zagęszcza chmurę punktów z SfM
   ## input: openmvs/scene.mvs (konwertowane z OpenMVG)
@@ -20,4 +20,4 @@ TextureMesh openmvs/scene_dense_mesh.mvs
 
 test -f openmvs/output/textured_mesh.obj || exit 1
 
-echo "▶ OpenMVS processing finished!"
+echo -e "▶ OpenMVS processing finished!"

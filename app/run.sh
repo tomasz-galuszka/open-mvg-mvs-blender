@@ -1,26 +1,28 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "▶ PIPELINE STARTED ..."
-echo ""
+echo -e "▶ PIPELINE STARTED ..."
+echo -e ""
 
 # -----------------------------------------------
 # ▶ Sprawdzenie katalogu z obrazkami
 # -----------------------------------------------
-echo "# Checking input directory /input/photos ..."
+echo -e "# Checking input directory /input/photos ..."
 
 # Liczymy pliki z rozszerzeniami .jpg, .jpeg, .png
 image_count=$(find /input/photos -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | wc -l)
 
 if [ "$image_count" -eq 0 ]; then
-    echo "❌ No images found in /input/photos. Exiting pipeline."
+    echo -e "❌ No images found in /input/photos. Exiting pipeline."
     exit 1
 fi
+
+echo -e "# Checking input directory /input/photos !\n"
 
 ./openmvg/run.sh
 ./openmvs/run.sh
 ./blender/run.sh
 ./gltf_transform/run.sh
 
-echo ""
-echo "✔ PIPELINE DONE"
+echo -e ""
+echo -e "✔ PIPELINE DONE"

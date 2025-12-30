@@ -1,16 +1,16 @@
 #!/bin/bash
 set -e
 
-echo "-- MODULEC CHECK --"
+echo "-- MODULES CHECK --"
 
 echo "\n▶ Blender"
 blender --background --python-expr "import bpy; print(bpy.app.version_string)"
 
 echo "\n▶ OPENMVG"
-openMVG_main_SfMInit_ImageListing --help | head -n 5
-openMVG_main_ComputeFeatures --help | head -n 5
-openMVG_main_ComputeMatches --help | head -n 5
-openMVG_main_IncrementalSfM --help | head -n 5
+openMVG_main_SfMInit_ImageListing --help | head -n 2
+openMVG_main_ComputeFeatures --help | head -n 2
+openMVG_main_ComputeMatches --help | head -n 2
+openMVG_main_IncrementalSfM --help | head -n 2
 
 echo "\n▶ OPENMVS"
 DensifyPointCloud --help | head -n 10
@@ -21,7 +21,7 @@ TextureMesh --help | head -n 10
 echo "\n▶ CGAL"
 dpkg -l | grep cgal
 
-echo "\n▶ VCG"
+echo "\n▶ VCG linked with OPENMVS"
 strings $(which ReconstructMesh) | grep -i vcg | head
 
 echo "\n▶ EIGEN"

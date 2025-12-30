@@ -41,7 +41,7 @@ RUN git clone --branch master --recursive https://github.com/openMVG/openMVG.git
     && cmake -DCMAKE_BUILD_TYPE=RELEASE ../src/ \
     && make -j1
 
-ENV PATH="/opt/openMVG/build/Linux-aarch64-RELEASE/bin:$PATH"
+ENV PATH="/opt/openMVG/build/Linux-aarch64-RELEASE:$PATH"
 
 # Install CGAL and dependencies (headless OpenMVS)
 RUN apt-get update && apt-get install -y \
@@ -63,11 +63,14 @@ RUN git clone --branch master --recursive https://github.com/cdcseacave/OpenMVS.
     && cmake --build . -- -j1 \
     && cmake --install .
 
+ENV PATH="/usr/local/bin/OpenMVS:$PATH"
+
 # ---------- 7. Default working dir ----------
 WORKDIR /app
 
 # ---------- 6. Copy scripts ----------
 COPY app .
+RUN chmod +x /app/*.sh
 
 # ---------- 8. Default entrypoint ----------
 # Można nadpisać komendą docker run

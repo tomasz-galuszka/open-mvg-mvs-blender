@@ -40,7 +40,7 @@ echo -e "✔ Calculate features for each image: FINISHED!\n"
 echo -e "▶ Features matching STARTED ---\n"
 openMVG_main_ComputeMatches \
     -i sfm_data.json \
-    -o matches \
+    -o . \
     --force 1
 echo -e "✔ Features matching: FINISHED!\n"
 
@@ -48,7 +48,7 @@ echo -e "▶ SfM camera and 3D points reconstruction STARTED...\n"
 mkdir -p sfm
 openMVG_main_SfM \
     -i sfm_data.json \
-    -m matches \
+    -m . \
     -o sfm
 echo -e "✔ SfM camera and 3D points reconstruction: FINISHED!\n"
 

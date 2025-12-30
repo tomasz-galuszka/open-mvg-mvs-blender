@@ -13,10 +13,10 @@ openMVG_main_ComputeMatches --help | head -n 2
 openMVG_main_IncrementalSfM --help | head -n 2
 
 echo "\n▶ OPENMVS"
-DensifyPointCloud --help | head -n 10
-ReconstructMesh --help | head -n 10
-RefineMesh --help | head -n 10
-TextureMesh --help | head -n 10
+DensifyPointCloud --help | head -n 2
+ReconstructMesh --help | head -n 2
+RefineMesh --help | head -n 2
+TextureMesh --help | head -n 2
 
 echo "\n▶ CGAL"
 dpkg -l | grep cgal

@@ -71,6 +71,10 @@ WORKDIR /app
 # ---------- 6. Copy scripts ----------
 COPY app .
 RUN chmod +x /app/*.sh
+RUN chmod +x /app/blender/*.sh
+RUN chmod +x /app/gltf_transform/*.sh
+RUN chmod +x /app/openmvg/*.sh
+RUN chmod +x /app/openmvs/*.sh
 
 # ---------- 8. Default entrypoint ----------
 # Można nadpisać komendą docker run

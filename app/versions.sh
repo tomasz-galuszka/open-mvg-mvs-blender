@@ -17,6 +17,7 @@ DensifyPointCloud --help | head -n 2
 ReconstructMesh --help | head -n 2
 RefineMesh --help | head -n 2
 TextureMesh --help | head -n 2
+openMVG_main_openMVG2openMVS --help | head -n 2
 
 echo "\n▶ CGAL"
 dpkg -l | grep cgal

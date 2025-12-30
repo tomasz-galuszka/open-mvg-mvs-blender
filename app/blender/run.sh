@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "▶ Blender optimization started ... \n"
+
+blender --background --factory-startup --disable-autoexec --python process.py
+test -f output/product.glb || exit 1
+
+echo "▶ Blender optimization finished!"

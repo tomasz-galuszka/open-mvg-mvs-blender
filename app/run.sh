@@ -1,16 +1,27 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-echo "▶ OpenMVG"
-./openmvg/run_openmvg.sh
+echo "▶ PIPELINE STARTED ..."
+echo ""
 
-echo "▶ OpenMVS"
-./openmvs/run_openmvs.sh
+# -----------------------------------------------
+# ▶ Sprawdzenie katalogu z obrazkami
+# -----------------------------------------------
+echo "# Checking input directory /input/photos ..."
 
-echo "▶ Blender cleanup"
-blender --background --python process.py
+# Liczymy pliki z rozszerzeniami .jpg, .jpeg, .png
+image_count=$(find /input/photos -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | wc -l)
 
-echo "▶ glTF optimize"
-gltf-transform optimize output/product.glb output/product_final.glb --draco --texture-compress webp --texture-size 2048
+if [ "$image_count" -eq 0 ]; then
+    echo "❌ No images found in /input/photos. Exiting pipeline."
+    exit 1
+fi
 
-echo "✔ DONE"
+
+./openmvg/run.sh
+./openmvs/run.sh
+./blender/run.sh
+./gltf_transform/run.sh
+
+echo ""
+echo "✔ PIPELINE DONE"

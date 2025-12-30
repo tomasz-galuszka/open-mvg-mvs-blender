@@ -41,7 +41,7 @@ RUN git clone --branch master --recursive https://github.com/openMVG/openMVG.git
     && cmake -DCMAKE_BUILD_TYPE=RELEASE ../src/ \
     && make -j1
 
-ENV PATH="/opt/openMVG/build/Linux-x86_64-RELEASE/bin:$PATH"
+ENV PATH="/opt/openMVG/build/Linux-aarch64-RELEASE/bin:$PATH"
 
 # Install CGAL and dependencies (headless OpenMVS)
 RUN apt-get update && apt-get install -y \
@@ -59,11 +59,9 @@ ENV VCG_ROOT=/opt/VCG
 RUN git clone --branch master --recursive https://github.com/cdcseacave/OpenMVS.git /opt/OpenMVS \
     && mkdir /opt/OpenMVS/make \
     && cd /opt/OpenMVS/make \
-    && cmake -DCMAKE_BUILD_TYPE=RELEASE -DVCG_ROOT=$VCG_ROOT ../ \
+    && cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DVCG_ROOT=$VCG_ROOT -DCMAKE_INSTALL_PREFIX=/usr/local \
     && cmake --build . -- -j1 \
     && cmake --install .
-
-ENV PATH="/opt/OpenMVS/build/bin:$PATH"
 
 # ---------- 7. Default working dir ----------
 WORKDIR /app

@@ -65,6 +65,9 @@ RUN git clone --branch master --recursive https://github.com/cdcseacave/OpenMVS.
 
 ENV PATH="/usr/local/bin/OpenMVS:$PATH"
 
+# neato dependency for OpenMVG
+RUN apt-get update && apt-get install -y graphviz
+
 # ---------- 7. Default working dir ----------
 WORKDIR /app
 

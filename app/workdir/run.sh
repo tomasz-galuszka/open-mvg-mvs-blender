@@ -22,8 +22,8 @@ echo "=============================================="
 echo -e "▶ Scene initialization STARTED...\n"
 openMVG_main_SfMInit_ImageListing \
     -i . \
-    -o . \
     -f 0 \
+    -o matches \
     --camera_model 3 \
     --group_camera_model 1 \
     --use_pose_prior 0
@@ -31,25 +31,39 @@ echo -e "✔ Scene initialization: FINISHED!\n"
 
 echo -e "▶ Calculate features for each image STARTED...\n"
 openMVG_main_ComputeFeatures \
-    -i sfm_data.json \
-    -o . \
-    --describerMethod SIFT \
-    --force 1
+    -p HIGH \
+    -i /app/workdir/matches/sfm_data.json \
+    -o /app/workdir/matches \
+    -m SIFT \
+    --describerPreset HIGH
 echo -e "✔ Calculate features for each image: FINISHED!\n"
 
+openMVG_main_PairGenerator \
+  -i /app/workdir/matches/sfm_data.json \
+  -o /app/workdir/matches/pairs.bin
+
 echo -e "▶ Features matching STARTED ---\n"
+mkdir -p matches
 openMVG_main_ComputeMatches \
-    -i sfm_data.json \
-    -o . \
-    --force 1
+    -r .8 \
+    -i /app/workdir/matches/sfm_data.json \
+    -p /app/workdir/matches/pairs.bin \
+    -o /app/workdir/matches/matches.putative.bin \
+    -f 1
 echo -e "✔ Features matching: FINISHED!\n"
+
+openMVG_main_GeometricFilter \
+  -i /app/workdir/matches/sfm_data.json \
+  -m /app/workdir/matches/matches.putative.bin \
+  -g f \
+  -o /app/workdir/matches/matches.f.bin
 
 echo -e "▶ SfM camera and 3D points reconstruction STARTED...\n"
 mkdir -p sfm
-openMVG_main_SfM \
-    -i sfm_data.json \
-    -m . \
-    -o sfm
+openMVG_main_SfM -s INCREMENTAL \
+    --input_file /app/workdir/matches/sfm_data.json \
+    -o /app/workdir/matches/sfm/ \
+    --match_dir /app/workdir/matches
 echo -e "✔ SfM camera and 3D points reconstruction: FINISHED!\n"
 
 echo -e "▶ Conversion OpenMVG -> OpenMVS format STARTED...\n"

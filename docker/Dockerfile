@@ -76,6 +76,7 @@ RUN chmod +x /app/gltf_transform/*.sh
 RUN chmod +x /app/openmvg/*.sh
 RUN chmod +x /app/openmvs/*.sh
 RUN chmod +x /app/validation/*.sh
+RUN chmod +x /app/workdir/*.sh
 
 # ---------- 8. Default entrypoint ----------
 # Można nadpisać komendą docker run

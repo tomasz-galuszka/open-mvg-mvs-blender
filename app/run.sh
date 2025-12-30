@@ -1,28 +1,67 @@
 #!/bin/bash
 set -euo pipefail
 
-echo -e "▶ PIPELINE STARTED ..."
-echo -e ""
+export INPUT_IMAGES="/input/photos"
+export INPUT_IMAGES_LOCAL="/app/input_photos_local"
+export RESULT_DIR="$INPUT_IMAGES_LOCAL"
+export OPENMVS_DIR="/app/openmvs"
 
-# -----------------------------------------------
-# ▶ Sprawdzenie katalogu z obrazkami
-# -----------------------------------------------
-echo -e "# Checking input directory /input/photos ..."
+echo -e "▶ PIPELINE STARTED ...\n"
+./validation/run.sh ${INPUT_IMAGES}
 
-# Liczymy pliki z rozszerzeniami .jpg, .jpeg, .png
-image_count=$(find /input/photos -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | wc -l)
+echo -e "▶ Copy ${INPUT_IMAGES} to ${INPUT_IMAGES_LOCAL} started... ---\n"
+mkdir -p "$INPUT_IMAGES_LOCAL"
+cp $INPUT_IMAGES/* "$INPUT_IMAGES_LOCAL"
+echo -e "✔ Copy FINISHED!\n"
 
-if [ "$image_count" -eq 0 ]; then
-    echo -e "❌ No images found in /input/photos. Exiting pipeline."
-    exit 1
-fi
+echo "=============================================="
+echo -e "▶ OpenMVG processing STARTED ... \n"
+echo "=============================================="
 
-echo -e "# Checking input directory /input/photos !\n"
+echo -e "▶ Scene initialization STARTED...\n"
+openMVG_main_SfMInit_ImageListing \
+    -i "$INPUT_IMAGES_LOCAL" \
+    -o "$RESULT_DIR" \
+    -f 0 \
+    --camera_model 3 \
+    --group_camera_model 1 \
+    --use_pose_prior 0
+echo -e "✔ Scene initialization: FINISHED!\n"
 
-./openmvg/run.sh
-./openmvs/run.sh
-./blender/run.sh
-./gltf_transform/run.sh
+echo -e "▶ Calculate features for each image STARTED...\n"
+openMVG_main_ComputeFeatures \
+    -i "$RESULT_DIR/sfm_data.json" \
+    -o "$RESULT_DIR" \
+    --describerMethod SIFT \
+    --force 1
+echo -e "✔ Calculate features for each image: FINISHED!\n"
 
-echo -e ""
+echo -e "▶ Features matching STARTED ---\n"
+openMVG_main_ComputeMatches \
+    -i "$RESULT_DIR/sfm_data.json" \
+    -o "$RESULT_DIR" \
+    --force 1
+echo -e "✔ Features matching: FINISHED!\n"
+
+echo -e "▶ SfM camera and 3d points initial reconstruction STARTED...\n"
+openMVG_main_IncrementalSfM \
+    -i "$RESULT_DIR/sfm_data.json" \
+    -m "$RESULT_DIR" \
+    -o "$RESULT_DIR/sfm"
+echo -e "✔ SfM camera and 3d points initial reconstruction: FINISHED!\n"
+
+echo -e "▶ Conversion OpenMVG to OpenMVS format STARTED...\n"
+openMVG_main_openMVG2openMVS \
+    -i "$RESULT_DIR/sfm/sfm_data.bin" \
+    -o "$OPENMVS_DIR/scene.mvs"
+echo -e "✔ Conversion OpenMVG to OpenMVS format: FINISHED!\n"
+
+echo "=============================================="
+echo -e "✔ OpenMVG processing FINISHED!\n"
+echo "=============================================="
+
+#./openmvs/run.sh
+#./blender/run.sh
+#./gltf_transform/run.sh
+
 echo -e "✔ PIPELINE DONE"

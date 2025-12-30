@@ -1,1 +1,1 @@
-docker run -it --rm -v ../input/photos:/input/photos glb-creator
+docker run -it --rm -v ./input/photos:/input/photos glb-creator

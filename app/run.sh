@@ -17,7 +17,6 @@ if [ "$image_count" -eq 0 ]; then
     exit 1
 fi
 
-
 ./openmvg/run.sh
 ./openmvs/run.sh
 ./blender/run.sh

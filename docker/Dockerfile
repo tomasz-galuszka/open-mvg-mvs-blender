@@ -14,7 +14,6 @@ RUN apt-get update && apt-get install -y \
     unzip \
     python3 \
     python3-pip \
-    libopencv-dev \
     libboost-all-dev \
     libglew-dev \
     libeigen3-dev \
@@ -28,6 +27,12 @@ RUN apt-get update && apt-get install -y \
     libxcursor-dev \
     curl \
     libjxl-dev \
+    pkg-config \
+    graphviz \
+    libcgal-dev \
+    libcgal-qt5-dev \
+    libeigen3-dev \
+    libboost-all-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------- 3. Install Node.js & glTF-Transform ----------
@@ -44,29 +49,52 @@ RUN git clone --branch master --recursive https://github.com/openMVG/openMVG.git
 
 ENV PATH="/opt/openMVG/build/Linux-aarch64-RELEASE:$PATH"
 
-# Install CGAL and dependencies (headless OpenMVS)
-RUN apt-get update && apt-get install -y \
-    libcgal-dev \
-    libcgal-qt5-dev \
-    libeigen3-dev \
-    libboost-all-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install VCG and dependencies (headless OpenMVS)
+# ---------- 5. Install VCG ----------
 RUN git clone https://github.com/cdcseacave/VCG.git /opt/VCG
 ENV VCG_ROOT=/opt/VCG
 
-# neato dependency for OpenMVG
-RUN apt-get update && apt-get install -y graphviz
+RUN apt-get update && apt-get install -y \
+    libjxl-dev \
+    libjxl-tools \
+    libjpeg-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install VCG and dependencies (headless OpenMVS)
+# ---------- 6. Install OpenCV 4.9+ with JPEG XL ----------
+RUN mkdir -p /opt/opencv_build && cd /opt/opencv_build \
+    && wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.9.0.zip \
+    && unzip opencv.zip \
+    && wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/refs/tags/4.9.0.zip \
+    && unzip opencv_contrib.zip \
+    && mkdir -p opencv-4.9.0/build && cd opencv-4.9.0/build \
+    && cmake -D CMAKE_BUILD_TYPE=RELEASE \
+             -D CMAKE_INSTALL_PREFIX=/usr/local \
+             -D OPENCV_EXTRA_MODULES_PATH=/opt/opencv_build/opencv_contrib-4.9.0/modules \
+             -D BUILD_EXAMPLES=OFF \
+             -D BUILD_DOCS=OFF \
+             -D BUILD_TESTS=OFF \
+             -D BUILD_PERF_TESTS=OFF \
+             -D WITH_IPP=OFF \
+             -D WITH_TBB=ON \
+             -D WITH_OPENGL=ON \
+             -D WITH_V4L=ON \
+             -D WITH_LIBV4L=ON \
+             -D WITH_GSTREAMER=ON \
+             -D WITH_JPEG=ON \
+             -D WITH_JXL=ON \
+             .. \
+    && make -j$(nproc) \
+    && make install \
+    && ldconfig \
+    && cd / && rm -rf /opt/opencv_build
+
+# ---------- 7. Install nanoflann ----------
 RUN git clone https://github.com/jlblancoc/nanoflann.git /opt/nanoflann \
     && cd /opt/nanoflann \
     && mkdir build && cd build \
     && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
     && make install
 
-# ---------- 5. Install OpenMVS ----------
+# ---------- 8. Install OpenMVS develop ----------
 RUN git clone --branch develop --recursive https://github.com/cdcseacave/OpenMVS.git /opt/OpenMVS \
     && mkdir /opt/OpenMVS/make \
     && cd /opt/OpenMVS/make \
@@ -74,16 +102,17 @@ RUN git clone --branch develop --recursive https://github.com/cdcseacave/OpenMVS
      -DCMAKE_BUILD_TYPE=RELEASE  \
      -DVCG_ROOT=$VCG_ROOT \
      -DCMAKE_INSTALL_PREFIX=/usr/local \
-      -Dnanoflann_DIR=/usr/local/lib/cmake/nanoflann \
+     -Dnanoflann_DIR=/usr/local/lib/cmake/nanoflann \
+     -DOpenCV_DIR=/usr/local/lib/cmake/opencv4 \
     && cmake --build . -- -j1 \
     && cmake --install .
 
 ENV PATH="/usr/local/bin/OpenMVS:$PATH"
 
-# ---------- 7. Default working dir ----------
+# ---------- 9. Default working dir ----------
 WORKDIR /app
 
-# ---------- 6. Copy scripts ----------
+# ---------- 10. Copy scripts ----------
 COPY app .
 RUN chmod +x /app/*.sh
 RUN chmod +x /app/blender/*.sh
@@ -93,6 +122,5 @@ RUN chmod +x /app/openmvs/*.sh
 RUN chmod +x /app/validation/*.sh
 RUN chmod +x /app/workdir/*.sh
 
-# ---------- 8. Default entrypoint ----------
-# Można nadpisać komendą docker run
+# ---------- 11. Default entrypoint ----------
 ENTRYPOINT ["/bin/bash"]

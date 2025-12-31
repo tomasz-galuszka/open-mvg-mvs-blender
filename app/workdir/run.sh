@@ -60,7 +60,6 @@ openMVG_main_GeometricFilter \
   -o /app/workdir/matches/matches.f.bin
 
 echo -e "▶ SfM camera and 3D points reconstruction STARTED...\n"
-mkdir -p sfm
 openMVG_main_SfM -s INCREMENTAL \
     --input_file /app/workdir/matches/sfm_data.json \
     -o /app/workdir/matches/sfm/ \

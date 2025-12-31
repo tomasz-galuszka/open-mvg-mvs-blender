@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y \
     libxinerama-dev \
     libxcursor-dev \
     curl \
+    libjxl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------- 3. Install Node.js & glTF-Transform ----------
@@ -55,18 +56,29 @@ RUN apt-get update && apt-get install -y \
 RUN git clone https://github.com/cdcseacave/VCG.git /opt/VCG
 ENV VCG_ROOT=/opt/VCG
 
+# neato dependency for OpenMVG
+RUN apt-get update && apt-get install -y graphviz
+
+# Install VCG and dependencies (headless OpenMVS)
+RUN git clone https://github.com/jlblancoc/nanoflann.git /opt/nanoflann \
+    && cd /opt/nanoflann \
+    && mkdir build && cd build \
+    && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && make install
+
 # ---------- 5. Install OpenMVS ----------
-RUN git clone --branch master --recursive https://github.com/cdcseacave/OpenMVS.git /opt/OpenMVS \
+RUN git clone --branch develop --recursive https://github.com/cdcseacave/OpenMVS.git /opt/OpenMVS \
     && mkdir /opt/OpenMVS/make \
     && cd /opt/OpenMVS/make \
-    && cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DVCG_ROOT=$VCG_ROOT -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake .. \
+     -DCMAKE_BUILD_TYPE=RELEASE  \
+     -DVCG_ROOT=$VCG_ROOT \
+     -DCMAKE_INSTALL_PREFIX=/usr/local \
+      -Dnanoflann_DIR=/usr/local/lib/cmake/nanoflann \
     && cmake --build . -- -j1 \
     && cmake --install .
 
 ENV PATH="/usr/local/bin/OpenMVS:$PATH"
-
-# neato dependency for OpenMVG
-RUN apt-get update && apt-get install -y graphviz
 
 # ---------- 7. Default working dir ----------
 WORKDIR /app

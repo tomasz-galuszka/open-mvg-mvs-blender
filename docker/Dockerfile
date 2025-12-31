@@ -71,38 +71,39 @@ RUN mkdir -p /opt/jxl_build && cd /opt/jxl_build \
     && wget -O libjxl.zip https://github.com/libjxl/libjxl/archive/refs/heads/main.zip \
     && unzip libjxl.zip \
     && cd libjxl-main \
+    && ./deps.sh \
     && mkdir build && cd build \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local .. \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_TESTING=OFF -DJXL_ENABLE_TESTS=OFF -DJXL_ENABLE_TOOLS=OFF -DJXL_INSTALL_PKG_CONFIG=ON .. \
     && make -j$(nproc) \
     && make install \
     && ldconfig \
     && cd / && rm -rf /opt/jxl_build
 
-# Ustaw PKG_CONFIG_PATH, aby CMake mogło znaleźć libjxl
-ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
-ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-
-
 RUN mkdir -p /opt/opencv_build/opencv-4.9.0/build && cd /opt/opencv_build/opencv-4.9.0/build \
-    && cmake -D CMAKE_BUILD_TYPE=RELEASE \
-             -D CMAKE_INSTALL_PREFIX=/usr/local \
-             -D OPENCV_EXTRA_MODULES_PATH=/opt/opencv_build/opencv_contrib-4.9.0/modules \
-             -D BUILD_EXAMPLES=OFF \
-             -D BUILD_DOCS=OFF \
-             -D BUILD_TESTS=OFF \
-             -D BUILD_PERF_TESTS=OFF \
-             -D WITH_IPP=OFF \
-             -D WITH_TBB=ON \
-             -D WITH_OPENGL=ON \
-             -D WITH_V4L=ON \
-             -D WITH_LIBV4L=ON \
-             -D WITH_GSTREAMER=ON \
-             -D WITH_JPEG=ON \
+    && cmake -DCMAKE_BUILD_TYPE=RELEASE \
+             -DCMAKE_INSTALL_PREFIX=/usr/local \
+             -DCMAKE_PREFIX_PATH=/usr/local \
+             -DOPENCV_EXTRA_MODULES_PATH=/opt/opencv_build/opencv_contrib-4.9.0/modules \
+             -DBUILD_TESTS=OFF \
+             -DBUILD_PERF_TESTS=OFF \
+             -DBUILD_EXAMPLES=OFF \
+             -DBUILD_DOCS=OFF \
+             -DWITH_IPP=OFF \
+             -DWITH_TBB=ON \
+             -DWITH_OPENGL=ON \
+             -DWITH_V4L=ON \
+             -DWITH_LIBV4L=ON \
+             -DWITH_GSTREAMER=ON \
+             -DWITH_JPEG=ON \
              -DWITH_JPEGXL=ON \
-             -D PYTHON3_EXECUTABLE=$(which python3) \
-             -D PYTHON3_INCLUDE_DIR=$(python3 -c "from sysconfig import get_paths as p; print(p()['include'])") \
-             -D PYTHON3_PACKAGES_PATH=$(python3 -c "from sysconfig import get_paths as p; print(p()['purelib'])") \
-             -D BUILD_opencv_python3=ON \
+             -DOPENCV_ENABLE_JPEGXL=ON \
+             -DWITH_PNG=ON \
+             -DWITH_WEBP=ON \
+             -DWITH_TIFF=ON \
+             -DPYTHON3_EXECUTABLE=$(which python3) \
+             -DPYTHON3_INCLUDE_DIR=$(python3 -c "from sysconfig import get_paths as p; print(p()['include'])") \
+             -DPYTHON3_PACKAGES_PATH=$(python3 -c "from sysconfig import get_paths as p; print(p()['purelib'])") \
+             -DBUILD_opencv_python3=ON \
              .. \
     && make -j$(nproc) \
     && make install \

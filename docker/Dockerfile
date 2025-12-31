@@ -20,10 +20,16 @@ RUN apt-get update && apt-get install -y \
     libtbb-dev \
     libpng-dev \
     libjpeg-dev \
+    python3-dev \
+    python3-numpy \
+    python3-pip \
+    libtiff-dev \
+    libgtk-3-dev \
     libopenexr-dev \
     libxi-dev \
     libxrandr-dev \
     libxinerama-dev \
+    libwebp-dev \
     libxcursor-dev \
     curl \
     libjxl-dev \
@@ -53,19 +59,31 @@ ENV PATH="/opt/openMVG/build/Linux-aarch64-RELEASE:$PATH"
 RUN git clone https://github.com/cdcseacave/VCG.git /opt/VCG
 ENV VCG_ROOT=/opt/VCG
 
-RUN apt-get update && apt-get install -y \
-    libjxl-dev \
-    libjxl-tools \
-    libjpeg-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 # ---------- 6. Install OpenCV 4.9+ with JPEG XL ----------
 RUN mkdir -p /opt/opencv_build && cd /opt/opencv_build \
-    && wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.9.0.zip \
-    && unzip opencv.zip \
-    && wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/refs/tags/4.9.0.zip \
-    && unzip opencv_contrib.zip \
-    && mkdir -p opencv-4.9.0/build && cd opencv-4.9.0/build \
+        && wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.9.0.zip \
+        && unzip opencv.zip \
+        && wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/refs/tags/4.9.0.zip \
+        && unzip opencv_contrib.zip
+
+# ---------- 2. Build libjxl from source ----------
+RUN mkdir -p /opt/jxl_build && cd /opt/jxl_build \
+    && wget -O libjxl.zip https://github.com/libjxl/libjxl/archive/refs/heads/main.zip \
+    && unzip libjxl.zip \
+    && cd libjxl-main \
+    && mkdir build && cd build \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local .. \
+    && make -j$(nproc) \
+    && make install \
+    && ldconfig \
+    && cd / && rm -rf /opt/jxl_build
+
+# Ustaw PKG_CONFIG_PATH, aby CMake mogło znaleźć libjxl
+ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+
+RUN mkdir -p /opt/opencv_build/opencv-4.9.0/build && cd /opt/opencv_build/opencv-4.9.0/build \
     && cmake -D CMAKE_BUILD_TYPE=RELEASE \
              -D CMAKE_INSTALL_PREFIX=/usr/local \
              -D OPENCV_EXTRA_MODULES_PATH=/opt/opencv_build/opencv_contrib-4.9.0/modules \
@@ -80,12 +98,17 @@ RUN mkdir -p /opt/opencv_build && cd /opt/opencv_build \
              -D WITH_LIBV4L=ON \
              -D WITH_GSTREAMER=ON \
              -D WITH_JPEG=ON \
-             -D WITH_JXL=ON \
+             -DWITH_JPEGXL=ON \
+             -D PYTHON3_EXECUTABLE=$(which python3) \
+             -D PYTHON3_INCLUDE_DIR=$(python3 -c "from sysconfig import get_paths as p; print(p()['include'])") \
+             -D PYTHON3_PACKAGES_PATH=$(python3 -c "from sysconfig import get_paths as p; print(p()['purelib'])") \
+             -D BUILD_opencv_python3=ON \
              .. \
     && make -j$(nproc) \
     && make install \
     && ldconfig \
-    && cd / && rm -rf /opt/opencv_build
+    && cd / \
+    && rm -rf /opt/opencv_build
 
 # ---------- 7. Install nanoflann ----------
 RUN git clone https://github.com/jlblancoc/nanoflann.git /opt/nanoflann \
@@ -94,18 +117,18 @@ RUN git clone https://github.com/jlblancoc/nanoflann.git /opt/nanoflann \
     && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
     && make install
 
-# ---------- 8. Install OpenMVS develop ----------
-RUN git clone --branch develop --recursive https://github.com/cdcseacave/OpenMVS.git /opt/OpenMVS \
-    && mkdir /opt/OpenMVS/make \
-    && cd /opt/OpenMVS/make \
-    && cmake .. \
-     -DCMAKE_BUILD_TYPE=RELEASE  \
-     -DVCG_ROOT=$VCG_ROOT \
-     -DCMAKE_INSTALL_PREFIX=/usr/local \
-     -Dnanoflann_DIR=/usr/local/lib/cmake/nanoflann \
-     -DOpenCV_DIR=/usr/local/lib/cmake/opencv4 \
-    && cmake --build . -- -j1 \
-    && cmake --install .
+## ---------- 8. Install OpenMVS develop ----------
+#RUN git clone --branch develop --recursive https://github.com/cdcseacave/OpenMVS.git /opt/OpenMVS \
+#    && mkdir /opt/OpenMVS/make \
+#    && cd /opt/OpenMVS/make \
+#    && cmake .. \
+#     -DCMAKE_BUILD_TYPE=RELEASE  \
+#     -DVCG_ROOT=$VCG_ROOT \
+#     -DCMAKE_INSTALL_PREFIX=/usr/local \
+#     -Dnanoflann_DIR=/usr/local/lib/cmake/nanoflann \
+#     -DOpenCV_DIR=/usr/local/lib/cmake/opencv4 \
+#    && cmake --build . -- -j1 \
+#    && cmake --install .
 
 ENV PATH="/usr/local/bin/OpenMVS:$PATH"
 

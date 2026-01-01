@@ -7,9 +7,16 @@ echo -e "▶ OpenMVS processing started ... \n"
 DensifyPointCloud scene.mvs --resolution-level 2 --min-resolution 640 --max-resolution 1280 --max-threads 1
 
 # ReconstructMesh – buduje siatkę (mesh) na podstawie gęstej chmury punktów
-ReconstructMesh openmvs/scene_dense.mvs
+ReconstructMesh -i scene_dense.mvs --archive-type 2
 
 # TextureMesh – nakłada tekstury na siatkę (UV mapping + kolor)
-TextureMesh openmvs/scene_dense_mesh.mvs
+TextureMesh scene_dense_mesh.mvs --archive-type 2
+
+# Ekspport do blendera
+TransformScene \
+  --input-file=scene_dense_mesh_texture.mvs \
+  --mesh-file=scene_dense_mesh_texture.ply \
+  --output-file=scene.obj \
+  --export-type=obj
 
 echo -e "▶ OpenMVS processing finished!"

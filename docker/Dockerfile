@@ -1,6 +1,8 @@
 # ---------- 1. Base image: Blender headless ----------
 FROM lscr.io/linuxserver/blender:latest
 
+#FROM ubuntu:22.04
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
 WORKDIR /app
@@ -32,13 +34,15 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     libxcursor-dev \
     curl \
-    libjxl-dev \
+#    libjxl-dev \
     pkg-config \
     graphviz \
     libcgal-dev \
     libcgal-qt5-dev \
     libeigen3-dev \
     libboost-all-dev \
+    libgmp-dev \
+    libmpfr-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------- 3. Install Node.js & glTF-Transform ----------
@@ -61,9 +65,9 @@ ENV VCG_ROOT=/opt/VCG
 
 # ---------- 6. Install OpenCV 4.9+ with JPEG XL ----------
 RUN mkdir -p /opt/opencv_build && cd /opt/opencv_build \
-        && wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.9.0.zip \
+        && wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.12.0.zip \
         && unzip opencv.zip \
-        && wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/refs/tags/4.9.0.zip \
+        && wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/refs/tags/4.12.0.zip \
         && unzip opencv_contrib.zip
 
 # ---------- 2. Build libjxl from source ----------
@@ -79,11 +83,11 @@ RUN mkdir -p /opt/jxl_build && cd /opt/jxl_build \
     && ldconfig \
     && cd / && rm -rf /opt/jxl_build
 
-RUN mkdir -p /opt/opencv_build/opencv-4.9.0/build && cd /opt/opencv_build/opencv-4.9.0/build \
+RUN mkdir -p /opt/opencv_build/opencv-4.12.0/build && cd /opt/opencv_build/opencv-4.12.0/build \
     && cmake -DCMAKE_BUILD_TYPE=RELEASE \
              -DCMAKE_INSTALL_PREFIX=/usr/local \
              -DCMAKE_PREFIX_PATH=/usr/local \
-             -DOPENCV_EXTRA_MODULES_PATH=/opt/opencv_build/opencv_contrib-4.9.0/modules \
+             -DOPENCV_EXTRA_MODULES_PATH=/opt/opencv_build/opencv_contrib-4.12.0/modules \
              -DBUILD_TESTS=OFF \
              -DBUILD_PERF_TESTS=OFF \
              -DBUILD_EXAMPLES=OFF \
@@ -118,18 +122,28 @@ RUN git clone https://github.com/jlblancoc/nanoflann.git /opt/nanoflann \
     && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
     && make install
 
+# ---------- Build CGAL from source ----------
+RUN mkdir -p /opt/cgal && cd /opt/cgal \
+    && wget https://github.com/CGAL/cgal/releases/download/v6.1/CGAL-6.1.zip \
+    && unzip CGAL-6.1.zip \
+    && cd CGAL-6.1 \
+    && cmake -DCMAKE_BUILD_TYPE=Release \
+             -DCMAKE_INSTALL_PREFIX=/usr/local \
+             . \
+    && make install
+
 ## ---------- 8. Install OpenMVS develop ----------
-#RUN git clone --branch develop --recursive https://github.com/cdcseacave/OpenMVS.git /opt/OpenMVS \
-#    && mkdir /opt/OpenMVS/make \
-#    && cd /opt/OpenMVS/make \
-#    && cmake .. \
-#     -DCMAKE_BUILD_TYPE=RELEASE  \
-#     -DVCG_ROOT=$VCG_ROOT \
-#     -DCMAKE_INSTALL_PREFIX=/usr/local \
-#     -Dnanoflann_DIR=/usr/local/lib/cmake/nanoflann \
-#     -DOpenCV_DIR=/usr/local/lib/cmake/opencv4 \
-#    && cmake --build . -- -j1 \
-#    && cmake --install .
+RUN git clone --branch develop --recursive https://github.com/cdcseacave/OpenMVS.git /opt/OpenMVS \
+    && mkdir /opt/OpenMVS/make \
+    && cd /opt/OpenMVS/make \
+    && cmake .. \
+     -DCMAKE_BUILD_TYPE=RELEASE  \
+     -DVCG_ROOT=$VCG_ROOT \
+     -DCMAKE_INSTALL_PREFIX=/usr/local \
+     -Dnanoflann_DIR=/usr/local/lib/cmake/nanoflann \
+     -DOpenCV_DIR=/usr/local/lib/cmake/opencv4 \
+    && cmake --build . -- -j1 \
+    && cmake --install .
 
 ENV PATH="/usr/local/bin/OpenMVS:$PATH"
 

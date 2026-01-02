@@ -77,8 +77,37 @@ echo -e "=============================================="
 echo -e "✔ OpenMVG processing FINISHED!\n"
 echo -e "=============================================="
 
- /app/openmvs/run.sh
- /app/blender/run.sh
- /app/gltf_transform/run.sh
+SCRIPT_DIR="/app/openmvs"
+ORIG_DIR="$(pwd)"
+
+echo "Changing to $SCRIPT_DIR"
+pushd "$SCRIPT_DIR" > /dev/null
+
+./run.sh
+
+echo "Returning to $ORIG_DIR"
+popd > /dev/null
+
+SCRIPT_DIR="/app/blender"
+ORIG_DIR="$(pwd)"
+
+echo "Changing to $SCRIPT_DIR"
+pushd "$SCRIPT_DIR" > /dev/null
+
+./run.sh
+
+echo "Returning to $ORIG_DIR"
+popd > /dev/null
+
+SCRIPT_DIR="/app/gltf_transform"
+ORIG_DIR="$(pwd)"
+
+echo "Changing to $SCRIPT_DIR"
+pushd "$SCRIPT_DIR" > /dev/null
+
+./run.sh
+
+echo "Returning to $ORIG_DIR"
+popd > /dev/null
 
 echo -e "✔ PIPELINE DONE"

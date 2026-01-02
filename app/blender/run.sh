@@ -3,6 +3,6 @@ set -e
 
 echo -e "▶ Blender optimization started ... \n"
 
-blender --background --factory-startup --python process_model.py
+blender --background --python process.py
 
 echo -e "▶ Blender optimization finished!"

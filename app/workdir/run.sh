@@ -77,8 +77,8 @@ echo -e "=============================================="
 echo -e "✔ OpenMVG processing FINISHED!\n"
 echo -e "=============================================="
 
-# ./openmvs/run.sh
-# ./blender/run.sh
-# ./gltf_transform/run.sh
+ /app/openmvs/run.sh
+ /app/blender/run.sh
+ /app/gltf_transform/run.sh
 
 echo -e "✔ PIPELINE DONE"

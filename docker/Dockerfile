@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     libxcursor-dev \
     curl \
-#    libjxl-dev \
+    libdraco-dev \
     pkg-config \
     graphviz \
     libcgal-dev \

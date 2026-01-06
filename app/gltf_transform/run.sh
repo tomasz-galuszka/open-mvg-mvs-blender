@@ -10,7 +10,7 @@ echo -e "▶ glTF optimization started\n"
 # - --texture-compress webp            → kompresuje tekstury do formatu WebP (redukcja rozmiaru tekstur)
 # - --texture-size 2048                 → ustala maksymalny rozmiar tekstur na 2048 px
 gltf-transform draco /app/blender/product.glb /output/product_draco.glb
-gltf-transform optimize /app/product_draco.glb /output/product_final.glb \
+gltf-transform optimize /output/product_draco.glb /output/product_final.glb \
   --texture-compress webp \
   --texture-size 2048
 

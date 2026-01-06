@@ -11,9 +11,9 @@ ReconstructMesh -i scene_dense.mvs --archive-type=2
 
 echo -e "--- RefineMesh Popraw normalne jeśli mesh jest odwrócony ---\n"
 RefineMesh -i scene_dense_mesh.mvs \
-  --ensure-edge-size 1 \
-  --close-holes 30 \
-  --decimate 0.3 \
+  --ensure-edge-size 2 \
+  --close-holes 0 \
+  --decimate 1 \
   -o scene_refined.mvs
 
 echo -e "--- TextureMesh – nakłada tekstury na siatkę (UV mapping + kolor) ---\n"

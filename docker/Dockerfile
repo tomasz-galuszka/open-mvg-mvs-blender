@@ -1,5 +1,5 @@
 # ---------- 1. Base image: Blender headless ----------
-FROM lscr.io/linuxserver/blender:latest
+FROM lscr.io/linuxserver/blender:5.0.1
 
 #FROM ubuntu:22.04
 

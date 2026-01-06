@@ -29,9 +29,6 @@ openMVG_main_ComputeFeatures \
 echo -e "--- Finished\n"
 
 echo -e "--- Dopasowanie cech (matching) ---\n"
-  ## Tworzy listę par zdjęć z dopasowanymi punktami
-  ## -i : sfm_data.json
-  ## -o : katalog wyjściowy matching
 openMVG_main_ComputeMatches \
   -i result/sfm_data.json \
   -o result \
@@ -39,10 +36,6 @@ openMVG_main_ComputeMatches \
 echo -e "--- Finished\n"
 
 echo -e "--- SfM – rekonstrukcja pozycji kamer i wstępny 3D punktów ---\n"
-  ## Incremental SfM – metoda przyrostowa
-  ## -i : sfm_data.json
-  ## -m : katalog z matchami
-  ## -o : katalog wyjściowy SfM
 openMVG_main_IncrementalSfM \
   -i result/sfm_data.json \
   -m result \
@@ -50,11 +43,11 @@ openMVG_main_IncrementalSfM \
 echo -e "--- Finished\n"
 
 echo -e "--- Konwersja danych OpenMVG do formatu OpenMVS ---\n"
-  ## -i : sfm_data.bin wygenerowany przez SfM
-  ## -o : plik .mvs dla OpenMVS
 openMVG_main_openMVG2openMVS \
   -i result/sfm/sfm_data.bin \
   -o result/scene.mvs
+  --rotation 1,0,0,-90  # Obrót X: -90° (Z-up → Y-up)
+
 echo -e "--- Finished\n"
 
 test -f result/sfm_data.bin || exit 1

@@ -5,20 +5,18 @@ import os
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete()
 
-# 2. Import OBJ z OpenMVS
-obj_path = "/app/openmvs/scene_dense_mesh_texture.obj"
+# 2. Importuj REFINED OBJ
+obj_path = "/app/openmvs/scene_refined_texture.obj"
 bpy.ops.wm.obj_import(filepath=obj_path)
 
-# 3. Optymalizacja (decimation tylko jeśli >10k trójkątów)
-for obj in bpy.context.selected_objects:
+# 3. Napraw normalne (na wszelki wypadek)
+for obj in bpy.data.objects:
     if obj.type == 'MESH':
-        faces = len(obj.data.polygons)
-        if faces > 10000:
-            # Zachowaj 50% trójkątów
-            mod = obj.modifiers.new(name="Decimate", type='DECIMATE')
-            mod.ratio = 0.5
-            bpy.ops.object.modifier_apply(modifier=mod.name)
-            print(f"Reduced {obj.name}: {faces} -> {len(obj.data.polygons)} faces")
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.normals_make_consistent(inside=False)
+        bpy.ops.object.mode_set(mode='OBJECT')
 
 # 4. Eksport GLB (stary operator)
 bpy.ops.export_scene.gltf(

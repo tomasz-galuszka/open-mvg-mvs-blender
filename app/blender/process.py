@@ -1,4 +1,5 @@
 import bpy
+import math
 import os
 
 # 1. Wyczyść scenę

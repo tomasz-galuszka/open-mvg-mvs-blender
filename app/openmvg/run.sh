@@ -36,10 +36,11 @@ openMVG_main_ComputeMatches \
 echo -e "--- Finished\n"
 
 echo -e "--- SfM – rekonstrukcja pozycji kamer i wstępny 3D punktów ---\n"
-openMVG_main_IncrementalSfM \
+openMVG_main_SfM \
   -i result/sfm_data.json \
   -m result \
-  -o result/sfm
+  -o result/sfm \
+  --sfm_engine SEQUENTIAL
 echo -e "--- Finished\n"
 
 echo -e "--- Konwersja danych OpenMVG do formatu OpenMVS ---\n"

@@ -1,5 +1,6 @@
 import subprocess
 
+
 def module_versions():
     print("-- MODULES CHECK --")
 
@@ -40,6 +41,7 @@ def module_versions():
     subprocess.run(["pip3", "--version"])
 
     print("✅ ALL MODULES CHECKED")
+
 
 if __name__ == "__main__":
     module_versions()

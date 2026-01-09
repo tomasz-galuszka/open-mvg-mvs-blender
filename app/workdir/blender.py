@@ -1,13 +1,13 @@
-import bpy
 import math
-import os
+
+import bpy
 
 # 1. Wyczyść scenę
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete()
 
 # 2. Importuj REFINED OBJ
-obj_path = "/app/openmvs/scene_refined_texture.obj"
+obj_path = "/app//workdir/scene_refined_texture.obj"
 bpy.ops.wm.obj_import(filepath=obj_path)
 
 # 3. NAPRAW WSZYSTKIE TRANSFORMACJE
@@ -45,9 +45,7 @@ bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
 # 4. Eksport GLB (stary operator)
 bpy.ops.export_scene.gltf(
-    filepath="/app/blender/product.glb",
+    filepath="/app/workdir/product.glb",
     export_format='GLB',
     export_yup=True
 )
-
-print("Done: product.glb created")

@@ -152,12 +152,6 @@ WORKDIR /app
 
 # ---------- 10. Copy scripts ----------
 COPY app .
-RUN chmod +x /app/*.sh
-RUN chmod +x /app/blender/*.sh
-RUN chmod +x /app/gltf_transform/*.sh
-RUN chmod +x /app/openmvg/*.sh
-RUN chmod +x /app/openmvs/*.sh
-RUN chmod +x /app/validation/*.sh
 RUN chmod +x /app/workdir/*.sh
 
 # ---------- 11. Default entrypoint ----------

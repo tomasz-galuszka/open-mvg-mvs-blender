@@ -6,7 +6,7 @@ INPUT_IMAGES_LOCAL = "/app/workdir"
 
 def copy_images():
     print("▶ Copy " + INPUT_IMAGES + " to " + INPUT_IMAGES_LOCAL + " STARTED...")
-    subprocess.run(["cp", INPUT_IMAGES, INPUT_IMAGES_LOCAL])
+    subprocess.call("cp " + INPUT_IMAGES + " " + INPUT_IMAGES_LOCAL, shell=True)
     print("✔ Copy FINISHED!")
 
 
